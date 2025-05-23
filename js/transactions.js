@@ -4,28 +4,39 @@ const supabaseUrl = 'https://acwseeemqkmwxncektfz.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjd3NlZWVtcWttd3huY2VrdGZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTY2MDEsImV4cCI6MjA2MzQ5MjYwMX0.y8pPbzsgIkpEl6CHNYpBS2lRdx5DB6A7DupAcyjksvs';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Zakładam, że tabela transakcji nazywa się 'deals'. Jeśli inaczej, zmień poniżej.
-const TRANSACTIONS_TABLE = 'deals';
+const TRANSACTIONS_TABLE = 'deals'; // Upewnij się, że nazwa tabeli jest poprawna
 
-export async function getDealsData() { // Nazwa funkcji może pozostać, ale odnosi się do transakcji
+// Funkcje renderujące i pomocnicze dla transakcji
+export function renderTransactionsApp() {
+    console.log("renderTransactionsApp called - implementacja tej funkcji jest w Twoim oryginalnym kodzie");
+    // Logika renderowania transakcji (lista/kanban)
+}
+
+export function refreshTransactionModuleProcessSelects() {
+    console.log("refreshTransactionModuleProcessSelects called - implementacja tej funkcji jest w Twoim oryginalnym kodzie");
+    // Logika odświeżania selectów z procesami
+}
+
+
+export async function getDealsData() {
     const { data, error } = await supabase.from(TRANSACTIONS_TABLE).select('*');
     if (error) { console.error('Błąd pobierania transakcji:', error); return []; }
     return data;
 }
 
-export async function addDeal(deal) { // Nazwa funkcji może pozostać
-    const { data, error } = await supabase.from(TRANSACTIONS_TABLE).insert([deal]).select(); // Dodano .select()
+export async function addDeal(deal) {
+    const { data, error } = await supabase.from(TRANSACTIONS_TABLE).insert([deal]).select();
     if (error) { console.error('Błąd dodawania transakcji:', error); return null; }
     return data ? data[0] : null;
 }
-export async function getDealById(id) { // Nazwa funkcji może pozostać
+export async function getDealById(id) {
     const { data, error } = await supabase.from(TRANSACTIONS_TABLE).select('*').eq('id', id).single();
     if (error) { console.error('Błąd pobierania transakcji po ID:', error); return null; }
     return data;
 }
 
-export async function updateDeal(id, updates) { // Nazwa funkcji może pozostać
-    const { data, error } = await supabase.from(TRANSACTIONS_TABLE).update(updates).eq('id', id).select(); // Dodano .select()
+export async function updateDeal(id, updates) {
+    const { data, error } = await supabase.from(TRANSACTIONS_TABLE).update(updates).eq('id', id).select();
     if (error) {
         console.error('Błąd aktualizacji transakcji:', error);
         return null;
@@ -33,7 +44,6 @@ export async function updateDeal(id, updates) { // Nazwa funkcji może pozostać
     return data ? data[0] : null;
 }
 
-// Dodano funkcję usuwania transakcji, jeśli potrzebna
 export async function deleteDeal(id) {
     const { error } = await supabase.from(TRANSACTIONS_TABLE).delete().eq('id', id);
     if (error) {
@@ -43,7 +53,6 @@ export async function deleteDeal(id) {
     return { success: true };
 }
 
-// Funkcje pomocnicze do pobierania danych dla formularza transakcji
 export async function getSalesProcessesForSelect() {
     const { data, error } = await supabase.from('sales_processes').select('id, name');
     if (error) {
@@ -59,10 +68,16 @@ export async function getTransactionStagesForSelect(processId) {
         .from('transaction_stages')
         .select('id, name')
         .eq('sales_process_id', processId)
-        .order('order_index', { ascending: true }); // Zakładając, że masz kolumnę 'order_index'
+        .order('order_index', { ascending: true });
     if (error) {
         console.error("Błąd pobierania etapów transakcji:", error);
         return [];
     }
     return data;
+}
+
+// Dodana funkcja inicjalizacyjna, której oczekuje main.js
+export function initTransactionsModule() {
+    console.log("Transactions module initialized.");
+    // Logika inicjalizacyjna dla modułu transakcji
 }
