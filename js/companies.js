@@ -1,12 +1,12 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-// Upewnij się, że poniższe dane są poprawne dla Twojego projektu Supabase
-const supabaseUrl = 'https://acwseeemqkmwxncektfz.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjd3NlZWVtcWttd3huY2VrdGZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTY2MDEsImV4cCI6MjA2MzQ5MjYwMX0.y8pPbzsgIkpEl6CHNYpBS2lRdx5DB6A7DupAcyjksvs';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// js/companies.js
+import { supabase } from './supabaseClient.js';
+import * as DOM from './domElements.js';
+import { showAlert } from './utils.js';
+import { closeModal, openModal } from './modals.js';
 
-// Funkcje renderujące i pomocnicze dla firm
-export function renderCompaniesApp() {
-    console.log("renderCompaniesApp called - implementacja tej funkcji jest w Twoim oryginalnym kodzie");
+// Implementacja renderCompaniesApp - MUSISZ JĄ DOSTOSOWAĆ DO SWOICH POTRZEB
+export async function renderCompaniesApp() {
+    console.log("renderCompaniesApp called - implementuj logikę wyświetlania firm");
     // Logika renderowania firm
 }
 
@@ -27,9 +27,59 @@ export async function getCompanyById(id) {
     if (error) { console.error('Błąd pobierania firmy po ID:', error); return null; }
     return data;
 }
+// Możesz potrzebować funkcji updateCompany i deleteCompany podobnie jak w contacts.js
 
-// Dodana funkcja inicjalizacyjna, której oczekuje main.js
+
+async function handleCompanyFormSubmit(event) {
+    event.preventDefault();
+    console.log("handleCompanyFormSubmit triggered");
+    // Logika dodawania/edycji firmy
+    // Przykład:
+    const companyId = DOM.companyForm.companyId.value;
+    const isEditing = Boolean(companyId);
+    const companyData = {
+        name: DOM.companyForm.companyName.value,
+        industry: DOM.companyForm.companyIndustry.value,
+        notes: DOM.companyForm.companyNotes.value,
+    };
+
+    try {
+        let result;
+        // if (isEditing) { result = await updateCompany(companyId, companyData); }
+        // else { result = await addCompany(companyData); }
+        result = await addCompany(companyData); // Uproszczone na razie do dodawania
+
+        if (result) {
+            showAlert(isEditing ? 'Firma zaktualizowana!' : 'Firma dodana!', 'success');
+            closeModal(DOM.companyFormModal);
+            DOM.companyForm.reset();
+            document.getElementById('companyId').value = '';
+            await renderCompaniesApp();
+        } else {
+            showAlert('Błąd zapisu firmy.', 'danger');
+        }
+    } catch (error) {
+        console.error('Błąd zapisu firmy:', error);
+        showAlert(`Błąd: ${error.message}`, 'danger');
+    }
+}
+
 export function initCompaniesModule() {
     console.log("Companies module initialized.");
-    // Logika inicjalizacyjna dla modułu firm
+    if (DOM.companyForm) {
+        DOM.companyForm.removeEventListener('submit', handleCompanyFormSubmit);
+        DOM.companyForm.addEventListener('submit', handleCompanyFormSubmit);
+        console.log("Event listener dla companyForm podpięty.");
+    } else {
+        console.warn("Element companyForm nie został znaleziony w DOM podczas initCompaniesModule.");
+    }
+
+    if (DOM.openCompanyFormModalButton) {
+        DOM.openCompanyFormModalButton.addEventListener('click', () => {
+            document.getElementById('companyFormModalTitle').textContent = 'Dodaj Nową Firmę';
+            DOM.companyForm.reset();
+            document.getElementById('companyId').value = '';
+            openModal(DOM.companyFormModal);
+        });
+    }
 }
