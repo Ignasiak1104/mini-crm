@@ -1,12 +1,12 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-// Upewnij się, że poniższe dane są poprawne dla Twojego projektu Supabase
-const supabaseUrl = 'https://acwseeemqkmwxncektfz.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjd3NlZWVtcWttd3huY2VrdGZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTY2MDEsImV4cCI6MjA2MzQ5MjYwMX0.y8pPbzsgIkpEl6CHNYpBS2lRdx5DB6A7DupAcyjksvs';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// js/tasks.js
+import { supabase } from './supabaseClient.js';
+import * as DOM from './domElements.js';
+import { showAlert } from './utils.js';
+// import { closeModal, openModal } from './modals.js'; // Modale nie są tu bezpośrednio używane dla formularza zadań
 
-// Funkcje renderujące i pomocnicze dla zadań
-export function renderTasks() {
-    console.log("renderTasks called - implementacja tej funkcji jest w Twoim oryginalnym kodzie");
+// Implementacja renderTasks - MUSISZ JĄ DOSTOSOWAĆ DO SWOICH POTRZEB
+export async function renderTasks() {
+    console.log("renderTasks called - implementuj logikę wyświetlania zadań");
     // Logika renderowania zadań
 }
 
@@ -23,24 +23,59 @@ export async function addTask(task) {
 }
 export async function updateTask(id, updates) {
     const { data, error } = await supabase.from('tasks').update(updates).eq('id', id).select();
-    if (error) {
-        console.error('Błąd aktualizacji zadania:', error);
-        return null;
-    }
+    if (error) { console.error('Błąd aktualizacji zadania:', error); return null; }
     return data ? data[0] : null;
 }
 
 export async function deleteTask(id) {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
-    if (error) {
-        console.error('Błąd usuwania zadania:', error);
-        return { success: false, error };
-    }
+    if (error) { console.error('Błąd usuwania zadania:', error); return { success: false, error }; }
     return { success: true };
 }
 
-// Dodana funkcja inicjalizacyjna, której oczekuje main.js
+async function handleTaskFormSubmit(event) {
+    event.preventDefault();
+    console.log("handleTaskFormSubmit triggered");
+
+    const taskInput = document.getElementById('taskInput');
+    const taskDueDateInput = document.getElementById('taskDueDateInput');
+
+    const description = taskInput.value.trim();
+    const due_date = taskDueDateInput.value || null;
+
+    if (!description) {
+        showAlert('Treść zadania nie może być pusta!', 'danger');
+        return;
+    }
+
+    try {
+        const result = await addTask({
+            description,
+            due_date,
+            is_completed: false // Domyślnie nowe zadanie nie jest ukończone
+        });
+
+        if (result) {
+            showAlert('Zadanie dodane!', 'success');
+            taskInput.value = ''; // Wyczyść pole
+            taskDueDateInput.value = ''; // Wyczyść datę
+            await renderTasks(); // Odśwież listę
+        } else {
+            showAlert('Błąd dodawania zadania.', 'danger');
+        }
+    } catch (error) {
+        console.error('Błąd zapisu zadania:', error);
+        showAlert(`Błąd: ${error.message}`, 'danger');
+    }
+}
+
 export function initTasksModule() {
     console.log("Tasks module initialized.");
-    // Logika inicjalizacyjna dla modułu zadań
+    if (DOM.taskForm) {
+        DOM.taskForm.removeEventListener('submit', handleTaskFormSubmit);
+        DOM.taskForm.addEventListener('submit', handleTaskFormSubmit);
+        console.log("Event listener dla taskForm podpięty.");
+    } else {
+        console.warn("Element taskForm nie został znaleziony w DOM podczas initTasksModule.");
+    }
 }
