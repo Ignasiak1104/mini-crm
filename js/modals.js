@@ -1,13 +1,13 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// js/modals.js
+import { supabase } from './supabaseClient.js'; // Zmieniony import
 import * as DOM from './domElements.js';
-import { showAlert } from './utils.js'; // Zakładam, że masz plik utils.js z tą funkcją
+import { showAlert } from './utils.js';
 
-// Poniższe dane logowania są już wpisane, upewnij się, że są aktualne.
-const supabase = createClient(
-    'https://acwseeemqkmwxncektfz.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjd3NlZWVtcWttd3huY2VrdGZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTY2MDEsImV4cCI6MjA2MzQ5MjYwMX0.y8pPbzsgIkpEl6CHNYpBS2lRdx5DB6A7DupAcyjksvs'
-);
+// Reszta pliku modals.js pozostaje taka sama jak w Twojej ostatniej działającej wersji
+// lub w wersji, którą Ci wcześniej podałem, z poprawionymi typami w funkcji deleteItemFromSupabase
 
+// ... (cała reszta kodu z modals.js, upewnij się, że masz tam poprawną logikę deleteItemFromSupabase itp.)
+// Poniżej wklejam resztę kodu z jednej z poprzednich iteracji, upewnij się, że jest kompletna i poprawna:
 
 let itemToDeleteInfo = { id: null, type: null, name: '' };
 let confirmDeleteCallback = null;
@@ -46,9 +46,9 @@ async function deleteItemFromSupabase(id, type) {
             table = 'companies';
             itemNameForAlert = 'Firma';
             break;
-        case 'deal': // Używane w starym kodzie, może być 'transaction'
+        case 'deal':
         case 'transaction':
-            table = 'deals'; // Upewnij się, że tabela transakcji nazywa się 'deals'
+            table = 'deals';
             itemNameForAlert = 'Transakcja';
             break;
         case 'task':
@@ -56,19 +56,19 @@ async function deleteItemFromSupabase(id, type) {
             itemNameForAlert = 'Zadanie';
             break;
         case 'salesProcess':
-             table = 'sales_processes'; // Upewnij się co do nazwy tabeli
+             table = 'sales_processes';
              itemNameForAlert = 'Proces sprzedaży';
              break;
         case 'transactionStage':
-             table = 'transaction_stages'; // Upewnij się co do nazwy tabeli
+             table = 'transaction_stages';
              itemNameForAlert = 'Etap transakcji';
              break;
         case 'customContactField':
-            table = 'custom_contact_fields'; // Upewnij się co do nazwy tabeli
+            table = 'custom_contact_fields';
             itemNameForAlert = 'Niestandardowe pole kontaktu';
             break;
         case 'customCompanyField':
-            table = 'custom_company_fields'; // Upewnij się co do nazwy tabeli
+            table = 'custom_company_fields';
             itemNameForAlert = 'Niestandardowe pole firmy';
             break;
         default:
@@ -84,7 +84,7 @@ async function deleteItemFromSupabase(id, type) {
         showAlert(`Nie udało się usunąć elementu (${itemNameForAlert}). Błąd: ${error.message}`, 'danger');
         return { success: false, error: error.message };
     } else {
-        showAlert(`${itemNameForAlert} został(a) usunięty/a.`, 'success'); // Zmieniono na success dla lepszego UX
+        showAlert(`${itemNameForAlert} został(a) usunięty/a.`, 'success');
         return { success: true };
     }
 }
@@ -93,7 +93,7 @@ async function handleConfirmDelete() {
     if (itemToDeleteInfo.id && itemToDeleteInfo.type) {
         const result = await deleteItemFromSupabase(itemToDeleteInfo.id, itemToDeleteInfo.type);
         if (result.success && typeof confirmDeleteCallback === 'function') {
-            confirmDeleteCallback(itemToDeleteInfo.id, itemToDeleteInfo.type); // Wywołaj callback tylko po pomyślnym usunięciu
+            confirmDeleteCallback(itemToDeleteInfo.id, itemToDeleteInfo.type);
         }
     }
     if (DOM.deleteConfirmModal) closeModal(DOM.deleteConfirmModal);
@@ -114,55 +114,47 @@ export function initModals() {
         DOM.closeQuickAddCompanyModalButton, DOM.closeTransactionFormModalButton,
         DOM.closeDeleteConfirmModalButton, DOM.closeContactDetailsModalButton,
         DOM.closeCompanyDetailsModalButton, DOM.closeTransactionDetailsModalButton,
-        DOM.cancelQuickAddCompanyButton, // Ten przycisk również zamyka modal
-        // Przyciski "Zamknij" w modalach szczegółów
-        DOM.closeContactDetailsViewButton, DOM.closeCompanyDetailsViewButton, DOM.closeTransactionDetailsViewButton,
-        // Przycisk "Anuluj" w modalu potwierdzenia usunięcia
+        DOM.cancelQuickAddCompanyButton,
+        DOM.closeContactDetailsViewButton, DOM.closeCompanyDetailsViewButton,
+        DOM.closeTransactionDetailsViewButton,
         DOM.cancelDeleteButton
     ].filter(button => button != null);
 
 
     allCloseButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Specjalna obsługa dla przycisku anulowania w deleteConfirmModal
             if (button === DOM.cancelDeleteButton && DOM.deleteConfirmModal) {
                 closeModal(DOM.deleteConfirmModal);
-                itemToDeleteInfo = { id: null, type: null, name: '' }; // Resetuj info
-                confirmDeleteCallback = null; // Resetuj callback
-                return; // Zakończ, aby nie próbować zamykać go ponownie przez parentElement
+                itemToDeleteInfo = { id: null, type: null, name: '' };
+                confirmDeleteCallback = null;
+                return;
             }
 
-            // Znajdź nadrzędny modal i zamknij go
             let modalToClose = button.closest('.modal');
-            // Czasami przycisk może być bezpośrednio w kontenerze, który jest modalem
-            // np. gdy modalContent nie jest bezpośrednim dzieckiem modala
             if (!modalToClose && button.parentElement && button.parentElement.classList.contains('modal')) {
                 modalToClose = button.parentElement;
             }
-            // Dodatkowe sprawdzenie dla przycisków wewnątrz modal-content
              if (!modalToClose && button.parentElement && button.parentElement.parentElement && button.parentElement.parentElement.classList.contains('modal')) {
                 modalToClose = button.parentElement.parentElement;
             }
 
-
             if (modalToClose) {
                 closeModal(modalToClose);
-                // Jeśli zamykany modal to modal potwierdzenia usunięcia (np. przez 'x' lub kliknięcie tła)
                 if (modalToClose === DOM.deleteConfirmModal) {
                     itemToDeleteInfo = { id: null, type: null, name: '' };
                     confirmDeleteCallback = null;
                 }
             } else {
-                console.warn("Nie znaleziono modala do zamknięcia dla przycisku:", button);
+                // console.warn("Nie znaleziono modala do zamknięcia dla przycisku:", button);
             }
         });
     });
 
     window.addEventListener('click', (event) => {
         allModals.forEach(modal => {
-            if (modal && event.target === modal) { // Zamykaj tylko jeśli kliknięto bezpośrednio na tło modala
+            if (modal && event.target === modal) {
                 closeModal(modal);
-                if (modal === DOM.deleteConfirmModal) { // Jeśli zamykamy modal potwierdzenia, resetuj
+                if (modal === DOM.deleteConfirmModal) {
                     itemToDeleteInfo = { id: null, type: null, name: '' };
                     confirmDeleteCallback = null;
                 }
@@ -173,46 +165,10 @@ export function initModals() {
     if (DOM.confirmDeleteButton) {
         DOM.confirmDeleteButton.addEventListener('click', handleConfirmDelete);
     } else {
-        console.error("Przycisk 'confirmDeleteButton' nie został znaleziony w DOM.");
+        // Ten błąd pojawiał się w konsoli, więc sprawdzamy czy element istnieje
+        // zanim dodamy listenera. Jeśli błąd nadal występuje, upewnij się,
+        // że element z id="confirmDeleteButton" jest w index.html
+        console.warn("Przycisk 'confirmDeleteButton' nie został znaleziony w DOM podczas initModals.");
     }
     console.log("Modals.js: Obsługa modali zainicjalizowana.");
 }
-
-// Upewnij się, że masz plik utils.js z funkcją showAlert, np.:
-/*
-// Plik: js/utils.js
-export function showAlert(message, type = 'info', duration = 3000) {
-    const alertContainer = document.getElementById('alertContainer');
-    if (!alertContainer) {
-        console.error("Alert container not found!");
-        return;
-    }
-
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`; // Użyj klas Tailwind lub własnych
-    alertDiv.textContent = message;
-
-    // Proste style dla alertu (dostosuj do Tailwind)
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.padding = '15px';
-    alertDiv.style.borderRadius = '5px';
-    alertDiv.style.color = 'white';
-    alertDiv.style.zIndex = '10000';
-    if (type === 'danger') {
-        alertDiv.style.backgroundColor = 'red';
-    } else if (type === 'success') {
-        alertDiv.style.backgroundColor = 'green';
-    } else {
-        alertDiv.style.backgroundColor = 'blue';
-    }
-
-
-    alertContainer.appendChild(alertDiv);
-
-    setTimeout(() => {
-        alertDiv.remove();
-    }, duration);
-}
-*/
