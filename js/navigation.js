@@ -2,7 +2,8 @@ let sectionCallbacks = {};
 
 export function initNavigation() {
     document.querySelectorAll('[data-section]').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault(); // Zapobiega domyślnej akcji linku (np. przejścia do #)
             const sectionId = button.getAttribute('data-section');
             showSection(sectionId);
         });
@@ -10,12 +11,28 @@ export function initNavigation() {
 }
 
 export function showSection(sectionId) {
-    document.querySelectorAll('section').forEach(sec => {
-        sec.style.display = (sec.id === sectionId) ? 'block' : 'none';
+    let sectionFound = false;
+    // Ukryj wszystkie sekcje w głównym kontenerze treści
+    document.querySelectorAll('main#mainContent section.content-section').forEach(sec => {
+        if (sec.id === sectionId) {
+            sec.style.display = 'block';
+            sectionFound = true;
+        } else {
+            sec.style.display = 'none';
+        }
     });
 
+    if (!sectionFound) {
+        console.error(`showSection: Nie znaleziono sekcji o ID: "${sectionId}"`);
+    }
+
+    // Wywołaj callback, jeśli jest zarejestrowany dla tej sekcji
     if (typeof sectionCallbacks[sectionId] === 'function') {
-        sectionCallbacks[sectionId]();
+        try {
+            sectionCallbacks[sectionId]();
+        } catch (e) {
+            console.error(`Błąd podczas wywoływania callback dla sekcji ${sectionId}:`, e);
+        }
     }
 }
 
