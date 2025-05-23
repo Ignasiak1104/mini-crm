@@ -210,39 +210,38 @@ body {
             margin-bottom: 20px;
         }
         form#taskForm { /* Dla formularza w sekcji tasksSection */
-            /* display: flex; */ /* Usunięte, bo formularz ma być pionowy z space-y-4 */
+            /* display: flex; */ 
             /* gap: 10px; */
-            /* margin-bottom: 15px; */ /* space-y-4 na formie powinno to załatwić */
+            /* margin-bottom: 15px; */ 
         }
         input#taskInput { /* Dla inputu tekstowego zadania */
-            /* flex-grow: 1; */ /* Niepotrzebne, jeśli nie ma flex */
+            /* flex-grow: 1; */ 
         }
         form#taskForm button#addTaskButton { /* Przycisk w formularzu zadań */
-           /* Domyślne w-full z Tailwind jest OK */
         }
         ul#taskList li .task-content { /* Kontener na treść i szczegóły zadania */
             flex-grow: 1;
         }
         ul#taskList li .task-text {
-            display: block; /* Aby szczegóły były pod spodem */
+            display: block; 
         }
         .task-details {
-            font-size: 0.8rem; /* 12.8px */
-            color: #6b7280; /* gray-500 */
+            font-size: 0.8rem; 
+            color: #6b7280; 
             margin-top: 4px;
         }
         .task-due-date.overdue {
-            color: #ef4444; /* red-500 */
+            color: #ef4444; 
             font-weight: 600;
         }
         .task-status {
             font-weight: 500;
         }
         .task-status-completed {
-            color: #10b981; /* green-500 */
+            color: #10b981; 
         }
         .task-status-pending {
-            color: #f59e0b; /* amber-500 */
+            color: #f59e0b; 
         }
         ul#taskList li {
             background-color: white;
