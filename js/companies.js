@@ -11,7 +11,7 @@ export async function getCompaniesData() {
 }
 
 export async function addCompany(company) {
-    const { data, error } = await supabase.from('companies').insert([company]).select(); // Dodano .select() aby zwrócić dodany obiekt
+    const { data, error } = await supabase.from('companies').insert([company]).select();
     if (error) { console.error('Błąd dodawania firmy:', error); return null; }
     return data ? data[0] : null;
 }
@@ -20,4 +20,10 @@ export async function getCompanyById(id) {
     const { data, error } = await supabase.from('companies').select('*').eq('id', id).single();
     if (error) { console.error('Błąd pobierania firmy po ID:', error); return null; }
     return data;
+}
+
+// Dodana funkcja inicjalizacyjna
+export function initCompaniesModule() {
+    console.log("Companies module initialized.");
+    // Tutaj możesz dodać logikę specyficzną dla inicjalizacji modułu firm
 }
