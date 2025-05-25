@@ -41,7 +41,14 @@
                     <div class="mb-4"><input type="text" id="searchContactsInput" placeholder="Szukaj kontaktów..." class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></div>
                     <div class="table-container">
                         <table class="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-md">
-                            <thead id="contactsTableHead" class="bg-gray-100"></thead>
+                            <thead id="contactsTableHead" class="bg-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 tl text-xs font-medium text-gray-500 uppercase tracking-wider">Imię i Nazwisko</th>
+                                    <th class="px-6 py-3 tl text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 tl text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
+                                    <th class="px-6 py-3 tl text-xs font-medium text-gray-500 uppercase tracking-wider">Akcje</th>
+                                </tr>
+                            </thead>
                             <tbody id="contactsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                         </table>
                     </div>
@@ -115,12 +122,12 @@
                     <form id="taskForm" class="space-y-4">
                         <div>
                             <label for="taskInput" class="block text-sm font-medium text-gray-700">Treść zadania:</label>
-                            <input type="text" id="taskInput" placeholder="Co trzeba zrobić?" required
+                            <input type="text" id="taskInput" name="taskInput" placeholder="Co trzeba zrobić?" required
                                    class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label for="taskDueDateInput" class="block text-sm font-medium text-gray-700">Termin wykonania (opcjonalnie):</label>
-                            <input type="date" id="taskDueDateInput"
+                            <input type="date" id="taskDueDateInput" name="taskDueDateInput"
                                    class="mt-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <button type="submit" id="addTaskButton" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-150 ease-in-out">
@@ -135,15 +142,14 @@
 
             <section id="settingsSection" class="content-section hidden">
                 <header class="mb-8"><h1 class="text-3xl sm:text-4xl font-bold text-gray-700">Ustawienia</h1></header>
-
                 <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700 border-b pb-3">Zarządzanie Procesami Sprzedaży</h2>
                     <div class="mb-6">
                         <form id="salesProcessForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                             <div class="md:col-span-2">
                                 <label for="salesProcessName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa procesu sprzedaży:</label>
-                                <input type="text" id="salesProcessName" placeholder="Np. Sprzedaż Produktu X, Nowi Klienci B2B" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500">
-                                <input type="hidden" id="salesProcessId">
+                                <input type="text" id="salesProcessName" name="salesProcessName" placeholder="Np. Sprzedaż Produktu X, Nowi Klienci B2B" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500">
+                                <input type="hidden" id="salesProcessId" name="salesProcessId">
                             </div>
                             <div class="md:col-span-1 flex items-end space-x-2">
                                 <button type="submit" id="saveSalesProcessButton" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-5 rounded-md">Zapisz Proces</button>
@@ -153,12 +159,10 @@
                     </div>
                     <div>
                         <h3 class="text-xl font-medium text-gray-700 mb-3">Istniejące Procesy Sprzedaży:</h3>
-                        <ul id="salesProcessesList" class="space-y-2">
-                        </ul>
+                        <ul id="salesProcessesList" class="space-y-2"></ul>
                         <p id="noSalesProcessesMessage" class="text-gray-500 mt-4 hidden">Brak zdefiniowanych procesów sprzedaży. Dodaj nowy, aby móc konfigurować etapy Kanban.</p>
                     </div>
                 </div>
-
                 <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
                     <h2 class="text-2xl font-semibold mb-3 text-gray-700 border-b pb-2">Konfiguracja Etapów Kanban dla Procesu</h2>
                     <div class="mb-6">
@@ -167,19 +171,18 @@
                             <option value="">-- Najpierw zdefiniuj i wybierz proces sprzedaży --</option>
                         </select>
                     </div>
-
                     <div id="transactionStagesSettingsContainer" class="hidden">
                         <h3 class="text-xl font-medium text-gray-700 mb-1">2. Zarządzaj etapami dla wybranego procesu: <strong id="selectedProcessNameForStages" class="text-indigo-600"></strong></h3>
                         <div class="mb-6 mt-4">
                             <form id="transactionStageForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                                 <div class="md:col-span-2">
                                     <label for="stageName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa etapu:</label>
-                                    <input type="text" id="stageName" placeholder="Np. Nowy Lead, Kontakt, Prezentacja" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                                    <input type="hidden" id="stageId">
+                                    <input type="text" id="stageName" name="stageName" placeholder="Np. Nowy Lead, Kontakt, Prezentacja" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    <input type="hidden" id="stageId" name="stageId">
                                 </div>
                                 <div>
                                     <label for="stageColor" class="block text-sm font-medium text-gray-600 mb-1">Kolor etapu:</label>
-                                    <input type="color" id="stageColor" value="#6366f1" class="w-full h-12 p-1 border border-gray-300 rounded-md cursor-pointer">
+                                    <input type="color" id="stageColor" name="stageColor" value="#6366f1" class="w-full h-12 p-1 border border-gray-300 rounded-md cursor-pointer">
                                 </div>
                                 <div class="md:col-span-3 flex space-x-3 mt-2">
                                     <button type="submit" id="saveStageButton" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-5 rounded-md">Zapisz Etap</button>
@@ -189,28 +192,23 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-medium text-gray-700 mb-3">Istniejące Etapy (przeciągnij aby zmienić kolejność lub użyj strzałek):</h3>
-                            <ul id="transactionStagesList" class="space-y-2">
-                            </ul>
+                            <ul id="transactionStagesList" class="space-y-2"></ul>
                             <p id="noTransactionStagesMessage" class="text-gray-500 mt-4 hidden">Brak zdefiniowanych etapów dla tego procesu. Dodaj nowy.</p>
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
                     <h2 class="text-2xl font-semibold mb-6 text-gray-700 border-b pb-3">Niestandardowe Pola Kontaktów</h2>
                     <div class="mb-6">
                         <form id="customContactFieldForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                             <div class="md:col-span-2">
                                 <label for="customFieldName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa pola (etykieta):</label>
-                                <input type="text" id="customFieldName" placeholder="Np. Numer Klienta, Data Urodzenia" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <input type="text" id="customFieldName" name="customFieldName" placeholder="Np. Numer Klienta, Data Urodzenia" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label for="customFieldType" class="block text-sm font-medium text-gray-600 mb-1">Typ pola:</label>
-                                <select id="customFieldType" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 h-[3.05rem]">
-                                    <option value="text">Tekst</option>
-                                    <option value="number">Liczba</option>
-                                    <option value="date">Data</option>
-                                    <option value="textarea">Długi tekst</option>
+                                <select id="customFieldType" name="customFieldType" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 h-[3.05rem]">
+                                    <option value="text">Tekst</option><option value="number">Liczba</option><option value="date">Data</option><option value="textarea">Długi tekst</option>
                                 </select>
                             </div>
                             <div class="md:col-span-3 mt-2">
@@ -229,15 +227,12 @@
                      <form id="customCompanyFieldForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
                          <div class="md:col-span-2">
                              <label for="customCompanyFieldName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa pola (etykieta):</label>
-                             <input type="text" id="customCompanyFieldName" placeholder="Np. NIP, KRS" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                             <input type="text" id="customCompanyFieldName" name="customCompanyFieldName" placeholder="Np. NIP, KRS" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
                          </div>
                          <div>
                              <label for="customCompanyFieldType" class="block text-sm font-medium text-gray-600 mb-1">Typ pola:</label>
-                             <select id="customCompanyFieldType" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 h-[3.05rem]">
-                                 <option value="text">Tekst</option>
-                                 <option value="number">Liczba</option>
-                                 <option value="date">Data</option>
-                                 <option value="textarea">Długi tekst</option>
+                             <select id="customCompanyFieldType" name="customCompanyFieldType" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 h-[3.05rem]">
+                                 <option value="text">Tekst</option><option value="number">Liczba</option><option value="date">Data</option><option value="textarea">Długi tekst</option>
                              </select>
                          </div>
                          <div class="md:col-span-3 mt-2">
@@ -265,26 +260,26 @@
     </div>
 
     <div id="contactFormModal" class="modal"><div class="modal-content"><span class="close-button" id="closeContactFormModalButton">&times;</span><h2 id="contactFormModalTitle" class="text-2xl font-semibold mb-6 text-gray-700"></h2><form id="contactForm" class="space-y-4">
-        <input type="hidden" id="contactId">
-        <div data-field-key="firstName"><label for="firstName" class="block text-sm font-medium text-gray-600 mb-1">Imię:</label><input type="text" id="firstName" required class="w-full p-3 mt-1 border rounded-md"></div>
-        <div data-field-key="lastName"><label for="lastName" class="block text-sm font-medium text-gray-600 mb-1">Nazwisko:</label><input type="text" id="lastName" required class="w-full p-3 mt-1 border rounded-md"></div>
-        <div data-field-key="email"><label for="email" class="block text-sm font-medium text-gray-600 mb-1">Email:</label><input type="email" id="email" class="w-full p-3 mt-1 border rounded-md"></div>
-        <div data-field-key="phone"><label for="phone" class="block text-sm font-medium text-gray-600 mb-1">Telefon:</label><input type="tel" id="phone" class="w-full p-3 mt-1 border rounded-md"></div>
-        <div data-field-key="contactCompany"><label for="contactCompany" class="block text-sm font-medium text-gray-600 mb-1">Firma:</label><div class="flex items-center"><select id="contactCompany" class="w-full p-3 mt-1 border rounded-md"><option value="">-- Wybierz --</option></select><button type="button" id="openQuickAddCompanyModalButton" class="quick-add-btn">(+) Dodaj</button></div></div>
-        <div data-field-key="notes"><label for="notes" class="block text-sm font-medium text-gray-600 mb-1">Notatki:</label><textarea id="notes" rows="3" class="w-full p-3 mt-1 border rounded-md"></textarea></div>
+        <input type="hidden" id="contactId" name="contactId">
+        <div data-field-key="firstName"><label for="firstName" class="block text-sm font-medium text-gray-600 mb-1">Imię:</label><input type="text" id="firstName" name="firstName" required class="w-full p-3 mt-1 border rounded-md"></div>
+        <div data-field-key="lastName"><label for="lastName" class="block text-sm font-medium text-gray-600 mb-1">Nazwisko:</label><input type="text" id="lastName" name="lastName" required class="w-full p-3 mt-1 border rounded-md"></div>
+        <div data-field-key="email"><label for="email" class="block text-sm font-medium text-gray-600 mb-1">Email:</label><input type="email" id="email" name="email" class="w-full p-3 mt-1 border rounded-md"></div>
+        <div data-field-key="phone"><label for="phone" class="block text-sm font-medium text-gray-600 mb-1">Telefon:</label><input type="tel" id="phone" name="phone" class="w-full p-3 mt-1 border rounded-md"></div>
+        <div data-field-key="contactCompany"><label for="contactCompany" class="block text-sm font-medium text-gray-600 mb-1">Firma:</label><div class="flex items-center"><select id="contactCompany" name="contactCompany" class="w-full p-3 mt-1 border rounded-md"><option value="">-- Wybierz --</option></select><button type="button" id="openQuickAddCompanyModalButton" class="quick-add-btn">(+) Dodaj</button></div></div>
+        <div data-field-key="notes"><label for="notes" class="block text-sm font-medium text-gray-600 mb-1">Notatki:</label><textarea id="notes" name="notes" rows="3" class="w-full p-3 mt-1 border rounded-md"></textarea></div>
         <div id="customFieldsContainerInForm" class="space-y-4"></div>
     <div class="flex space-x-4 pt-2"><button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-md">Zapisz</button><button type="button" id="clearContactFormButton" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-md">Wyczyść</button></div></form></div></div>
 
-    <div id="companyFormModal" class="modal"><div class="modal-content"><span class="close-button" id="closeCompanyFormModalButton">&times;</span><h2 id="companyFormModalTitle" class="text-2xl font-semibold mb-6 text-gray-700"></h2><form id="companyForm" class="space-y-4"><input type="hidden" id="companyId">
-        <div><label for="companyName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa Firmy:</label><input type="text" id="companyName" required class="w-full p-3 mt-1 border rounded-md"></div>
-        <div><label for="companyIndustry" class="block text-sm font-medium text-gray-600 mb-1">Branża:</label><input type="text" id="companyIndustry" class="w-full p-3 mt-1 border rounded-md"></div>
-        <div><label for="companyNotes" class="block text-sm font-medium text-gray-600 mb-1">Notatki:</label><textarea id="companyNotes" rows="3" class="w-full p-3 mt-1 border rounded-md"></textarea></div>
+    <div id="companyFormModal" class="modal"><div class="modal-content"><span class="close-button" id="closeCompanyFormModalButton">&times;</span><h2 id="companyFormModalTitle" class="text-2xl font-semibold mb-6 text-gray-700"></h2><form id="companyForm" class="space-y-4"><input type="hidden" id="companyId" name="companyId">
+        <div><label for="companyName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa Firmy:</label><input type="text" id="companyName" name="companyName" required class="w-full p-3 mt-1 border rounded-md"></div>
+        <div><label for="companyIndustry" class="block text-sm font-medium text-gray-600 mb-1">Branża:</label><input type="text" id="companyIndustry" name="companyIndustry" class="w-full p-3 mt-1 border rounded-md"></div>
+        <div><label for="companyNotes" class="block text-sm font-medium text-gray-600 mb-1">Notatki:</label><textarea id="companyNotes" name="companyNotes" rows="3" class="w-full p-3 mt-1 border rounded-md"></textarea></div>
         <div id="customCompanyFieldsContainerInForm" class="space-y-4"></div>
     <div class="flex space-x-4 pt-2"><button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-md">Zapisz</button><button type="button" id="clearCompanyFormButton" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-md">Wyczyść</button></div></form></div></div>
 
     <div id="quickAddCompanyModal" class="modal"><div class="modal-content modal-content-sm"><span class="close-button" id="closeQuickAddCompanyModalButton">&times;</span><h2 class="text-xl font-semibold mb-4 text-gray-700">Szybkie Dodawanie Firmy</h2><form id="quickAddCompanyForm" class="space-y-3">
-        <div><label for="quickCompanyName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa Firmy:</label><input type="text" id="quickCompanyName" required class="w-full p-2 mt-1 border rounded-md"></div>
-        <div><label for="quickCompanyIndustry" class="block text-sm font-medium text-gray-600 mb-1">Branża:</label><input type="text" id="quickCompanyIndustry" class="w-full p-2 mt-1 border rounded-md"></div>
+        <div><label for="quickCompanyName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa Firmy:</label><input type="text" id="quickCompanyName" name="quickCompanyName" required class="w-full p-2 mt-1 border rounded-md"></div>
+        <div><label for="quickCompanyIndustry" class="block text-sm font-medium text-gray-600 mb-1">Branża:</label><input type="text" id="quickCompanyIndustry" name="quickCompanyIndustry" class="w-full p-2 mt-1 border rounded-md"></div>
     <div class="flex space-x-3 pt-2"><button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-md">Zapisz</button><button type="button" id="cancelQuickAddCompanyButton" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-2 px-3 rounded-md">Anuluj</button></div></form></div></div>
 
     <div id="transactionFormModal" class="modal">
@@ -292,33 +287,33 @@
             <span class="close-button" id="closeTransactionFormModalButton">&times;</span>
             <h2 id="transactionFormModalTitle" class="text-2xl font-semibold mb-6 text-gray-700">Dodaj Transakcję</h2>
             <form id="transactionForm" class="space-y-4">
-                <input type="hidden" id="transactionId">
+                <input type="hidden" id="transactionId" name="transactionId">
                 <div>
                     <label for="transactionProcessSelect" class="block text-sm font-medium text-gray-600 mb-1">Proces Sprzedaży:</label>
-                    <select id="transactionProcessSelect" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white">
+                    <select id="transactionProcessSelect" name="transactionProcessSelect" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white">
                         <option value="">-- Wybierz proces --</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="transactionName" class="block text-sm font-medium text-gray-600 mb-1">Nazwa Transakcji:</label>
-                        <input type="text" id="transactionName" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        <input type="text" id="transactionName" name="transactionName" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
                     </div>
                     <div>
                         <label for="transactionValue" class="block text-sm font-medium text-gray-600 mb-1">Wartość (PLN):</label>
-                        <input type="number" id="transactionValue" step="0.01" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        <input type="number" id="transactionValue" name="transactionValue" step="0.01" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="transactionStageId" class="block text-sm font-medium text-gray-600 mb-1">Etap Kanban (dla wybranego procesu):</label>
-                        <select id="transactionStageId" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white">
+                        <select id="transactionStageId" name="transactionStageId" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white">
                             <option value="">-- Najpierw wybierz proces sprzedaży --</option>
                         </select>
                     </div>
                     <div>
                         <label for="transactionStatus" class="block text-sm font-medium text-gray-600 mb-1">Status Finansowy:</label>
-                        <select id="transactionStatus" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white">
+                        <select id="transactionStatus" name="transactionStatus" required class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white">
                             <option value="oczekujaca">Oczekująca</option>
                             <option value="zakonczona">Zakończona</option>
                             <option value="anulowana">Anulowana</option>
@@ -328,20 +323,20 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="transactionContactId" class="block text-sm font-medium text-gray-600 mb-1">Powiązany Kontakt:</label>
-                        <select id="transactionContactId" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white"><option value="">-- Wybierz --</option></select>
+                        <select id="transactionContactId" name="transactionContactId" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white"><option value="">-- Wybierz --</option></select>
                     </div>
                     <div>
                         <label for="transactionCompanyId" class="block text-sm font-medium text-gray-600 mb-1">Powiązana Firma:</label>
-                        <select id="transactionCompanyId" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white"><option value="">-- Wybierz --</option></select>
+                        <select id="transactionCompanyId" name="transactionCompanyId" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-white"><option value="">-- Wybierz --</option></select>
                     </div>
                 </div>
                 <div>
                     <label for="transactionClosingDate" class="block text-sm font-medium text-gray-600 mb-1">Data Zamknięcia:</label>
-                    <input type="date" id="transactionClosingDate" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                    <input type="date" id="transactionClosingDate" name="transactionClosingDate" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
                 </div>
                 <div>
                     <label for="transactionDescription" class="block text-sm font-medium text-gray-600 mb-1">Opis/Notatki:</label>
-                    <textarea id="transactionDescription" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"></textarea>
+                    <textarea id="transactionDescription" name="transactionDescription" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"></textarea>
                 </div>
                 <div class="flex space-x-4 pt-2">
                     <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-md">Zapisz Transakcję</button>
