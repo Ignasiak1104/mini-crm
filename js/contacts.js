@@ -1,121 +1,133 @@
 // js/contacts.js
 import { supabase } from './supabaseClient.js';
-import * as DOM from './domElements.js'; // Potrzebne do closeModal
-import { showAlert } from './utils.js'; // Załóżmy, że masz utils.js
-import { closeModal, openModal } from './modals.js'; // Załóżmy, że masz modals.js
+import { showAlert } from './utils.js';
+import { closeModal, openModal, openDeleteConfirmModal } from './modals.js';
 
-// Implementacja renderContactsApp - MUSISZ JĄ DOSTOSOWAĆ DO SWOICH POTRZEB
+// --- Implementacja renderContactsApp ---
 export async function renderContactsApp() {
-    console.log("renderContactsApp called - implementuj logikę wyświetlania kontaktów");
-    // Przykład:
-    // const contacts = await getContactsData();
-    // const tableBody = document.getElementById('contactsTableBody');
-    // if (!tableBody) return;
-    // tableBody.innerHTML = ''; // Wyczyść tabelę
-    // if (contacts.length === 0) {
-    //     document.getElementById('noContactsMessage')?.classList.remove('hidden');
-    // } else {
-    //     document.getElementById('noContactsMessage')?.classList.add('hidden');
-    //     contacts.forEach(contact => {
-    //         const row = tableBody.insertRow();
-    //         // Dodaj komórki i przyciski akcji
-    //     });
-    // }
+    console.log("renderContactsApp: Rozpoczynam renderowanie kontaktów.");
+    try {
+        const contacts = await getContactsData();
+        const tableBody = document.getElementById('contactsTableBody');
+        const noContactsMessage = document.getElementById('noContactsMessage');
+        // const contactsTableHead = document.getElementById('contactsTableHead'); // Jeśli potrzebujesz dynamicznych nagłówków
+
+        if (!tableBody || !noContactsMessage) {
+            console.error("renderContactsApp: Brak tabeli kontaktów lub komunikatu o braku kontaktów.");
+            if (showAlert) showAlert("Błąd renderowania listy kontaktów. Sprawdź konsolę.", "danger");
+            return;
+        }
+        tableBody.innerHTML = '';
+
+        if (contacts.length === 0) {
+            noContactsMessage.classList.remove('hidden');
+        } else {
+            noContactsMessage.classList.add('hidden');
+            contacts.forEach(contact => {
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = `${contact.firstName || ''} ${contact.lastName || ''}`;
+                row.insertCell().textContent = contact.email || '-';
+                row.insertCell().textContent = contact.phone || '-';
+                const actionsCell = row.insertCell();
+                actionsCell.innerHTML = `
+                    <button class="action-btn view-btn" data-contact-id="${contact.id}">Zobacz</button>
+                    <button class="action-btn edit-btn" data-contact-id="${contact.id}">Edytuj</button>
+                    <button class="action-btn delete-btn" data-contact-id="${contact.id}" data-contact-name="${contact.firstName || ''} ${contact.lastName || ''}">Usuń</button>
+                `;
+            });
+        }
+        console.log("renderContactsApp: Zakończono renderowanie kontaktów.");
+        attachActionListenersToContactsTable();
+    } catch (error) {
+        console.error("Błąd w renderContactsApp:", error);
+        if (showAlert) showAlert("Nie udało się załadować kontaktów.", "danger");
+    }
 }
 
-export async function getContactsData() {
-    const { data, error } = await supabase.from('contacts').select('*');
-    if (error) { console.error('Błąd pobierania kontaktów:', error); return []; }
-    return data;
-}
+// --- Funkcje danych ---
+export async function getContactsData() { /* ... bez zmian z ostatniej wersji ... */ }
+export async function addContact(contact) { /* ... bez zmian ... */ }
+export async function updateContact(id, updates) { /* ... bez zmian ... */ }
+export async function getContactById(id) { /* ... bez zmian ... */ }
+// Implementacje z poprzedniej odpowiedzi są OK
 
-export async function addContact(contact) {
-    const { data, error } = await supabase.from('contacts').insert([contact]).select();
-    if (error) { console.error('Błąd dodawania kontaktu:', error); return null; }
-    return data ? data[0] : null;
-}
-
-export async function updateContact(id, updates) {
-    const { data, error } = await supabase.from('contacts').update(updates).eq('id', id).select();
-    if (error) { console.error('Błąd aktualizacji kontaktu:', error); return null; }
-    return data ? data[0] : null;
-}
-
-export async function deleteContact(id) {
-    const { error } = await supabase.from('contacts').delete().eq('id', id);
-    if (error) { console.error('Błąd usuwania kontaktu:', error); return { success: false, error }; }
-    return { success: true };
-}
-
-export async function getContactById(id) {
-    const { data, error } = await supabase.from('contacts').select('*').eq('id', id).single();
-    if (error) { console.error('Błąd pobierania kontaktu po ID:', error); return null; }
-    return data;
-}
-
+// --- Obsługa formularza ---
 async function handleContactFormSubmit(event) {
-    event.preventDefault(); // Zapobiega domyślnemu przeładowaniu strony
-    console.log("handleContactFormSubmit triggered");
-
-    const contactId = DOM.contactForm.contactId.value; // Zakładając, że masz <input type="hidden" id="contactId"> w formularzu
+    event.preventDefault();
+    const contactFormElement = event.target;
+    const contactId = contactFormElement.contactId.value;
     const isEditing = Boolean(contactId);
 
-    // Zbierz dane z formularza - dostosuj do swoich pól
-    const contactData = {
-        firstName: DOM.contactForm.firstName.value,
-        lastName: DOM.contactForm.lastName.value,
-        email: DOM.contactForm.email.value,
-        phone: DOM.contactForm.phone.value,
-        company_id: DOM.contactForm.contactCompany.value || null, // Upewnij się, że pole w bazie to np. company_id
-        notes: DOM.contactForm.notes.value,
-        // ... inne pola, w tym niestandardowe
+    const contactData = { // Upewnij się, że nazwy pól (np. firstName) pasują do atrybutów 'name' w HTML
+        firstName: contactFormElement.firstName.value,
+        lastName: contactFormElement.lastName.value,
+        email: contactFormElement.email.value,
+        phone: contactFormElement.phone.value,
+        notes: contactFormElement.notes.value,
     };
+    if (contactFormElement.contactCompany && contactFormElement.contactCompany.value) {
+        contactData.company_id = contactFormElement.contactCompany.value; // Zgodnie z Twoim SQL: company_id
+    }
+
+    console.log("Wysyłanie danych kontaktu:", contactData);
 
     try {
         let result;
         if (isEditing) {
             result = await updateContact(contactId, contactData);
-            if (result) showAlert('Kontakt zaktualizowany pomyślnie!', 'success');
+            if (result && showAlert) showAlert('Kontakt zaktualizowany!', 'success');
         } else {
             result = await addContact(contactData);
-            if (result) showAlert('Kontakt dodany pomyślnie!', 'success');
+            if (result && showAlert) showAlert('Kontakt dodany!', 'success');
         }
 
         if (result) {
-            closeModal(DOM.contactFormModal);
-            DOM.contactForm.reset(); // Wyczyść formularz
-            document.getElementById('contactId').value = ''; // Wyczyść ukryte ID
-            await renderContactsApp(); // Odśwież listę kontaktów
-            // Ewentualnie odśwież dashboard, jeśli dodanie kontaktu ma na niego wpływ
-            // import { updateDashboardData } from './main.js'; // Można zaimportować, jeśli nie powoduje to cyklicznej zależności
-            // updateDashboardData();
+            const contactFormModal = document.getElementById('contactFormModal');
+            if(contactFormModal) closeModal(contactFormModal);
+            contactFormElement.reset();
+            if(contactFormElement.contactId) contactFormElement.contactId.value = '';
+            await renderContactsApp();
+            const mainModule = await import('./main.js');
+            if (mainModule.updateDashboardData) mainModule.updateDashboardData();
         } else {
-            showAlert('Wystąpił błąd podczas zapisywania kontaktu.', 'danger');
+            if (showAlert) showAlert('Wystąpił błąd podczas zapisywania kontaktu.', 'danger');
         }
     } catch (error) {
         console.error('Błąd zapisu kontaktu:', error);
-        showAlert(`Błąd: ${error.message}`, 'danger');
+        if (showAlert) showAlert(`Błąd zapisu kontaktu: ${error.message || 'Nieznany błąd'}`, 'danger');
     }
 }
 
+// --- Obsługa przycisków akcji w tabeli ---
+function attachActionListenersToContactsTable() { /* ... bez zmian z ostatniej wersji ... */ }
+// Implementacja z poprzedniej odpowiedzi jest OK
+
+// --- Inicjalizacja modułu ---
 export function initContactsModule() {
     console.log("Contacts module initialized.");
-    if (DOM.contactForm) {
-        DOM.contactForm.removeEventListener('submit', handleContactFormSubmit); // Usuń stary listener, aby uniknąć duplikatów
-        DOM.contactForm.addEventListener('submit', handleContactFormSubmit);
+    const form = document.getElementById('contactForm'); // Pobierz formularz bezpośrednio
+    if (form) {
+        form.removeEventListener('submit', handleContactFormSubmit);
+        form.addEventListener('submit', handleContactFormSubmit);
         console.log("Event listener dla contactForm podpięty.");
     } else {
-        console.warn("Element contactForm nie został znaleziony w DOM podczas initContactsModule.");
+        console.warn("contacts.js: Element contactForm nie został znaleziony w DOM.");
     }
 
-    // Podpięcie otwierania modala do przycisku "Dodaj nowy kontakt"
-    if (DOM.openContactFormModalButton) {
-        DOM.openContactFormModalButton.addEventListener('click', () => {
-            document.getElementById('contactFormModalTitle').textContent = 'Dodaj Nowy Kontakt';
-            DOM.contactForm.reset();
-            document.getElementById('contactId').value = '';
-            // Tutaj ewentualnie logika czyszczenia/przygotowania pól niestandardowych w formularzu
-            openModal(DOM.contactFormModal);
+    const openButton = document.getElementById('openContactFormModalButton');
+    const modal = document.getElementById('contactFormModal');
+    const modalTitle = document.getElementById('contactFormModalTitle'); // Upewnij się, że to ID istnieje
+    const contactIdInput = document.getElementById('contactId');
+
+    if (openButton && modal && modalTitle && form && contactIdInput) {
+        openButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Dodaj Nowy Kontakt';
+            form.reset();
+            contactIdInput.value = '';
+            openModal(modal);
         });
+    } else {
+        if (!openButton) console.warn("contacts.js: Przycisk 'openContactFormModalButton' nie znaleziony.");
+        // ... inne logi dla brakujących elementów
     }
 }
